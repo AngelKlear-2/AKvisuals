@@ -30,7 +30,7 @@ public final class KillAura {
         if (target == null) return;
 
         // crystal combo: target in the air, obsidian + crystal + spam
-        if (Config.crystalAura && !target.isOnGround() && CrystalAura.tick(mc, me, target)) return;
+        if (Config.crystalAura && !target.isOnGround() && CrystalAura.tick(mc, mc.player, target)) return;
 
         boolean aimed = !Config.auraRotate || aimAt(me, aimPoint(target));
         if (!aimed) return;

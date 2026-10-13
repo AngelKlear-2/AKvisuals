@@ -3,6 +3,7 @@ package dev.akvisuals;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -23,7 +24,7 @@ public final class CrystalAura {
     private static final int MAX_DEPTH = 8;
     private static final double MAX_RANGE_SQ = 36.0; // 6 blocks
 
-    public static boolean tick(MinecraftClient mc, PlayerEntity me, LivingEntity target) {
+    public static boolean tick(MinecraftClient mc, ClientPlayerEntity me, LivingEntity target) {
         if (me.squaredDistanceTo(target) > MAX_RANGE_SQ) return false;
 
         BlockPos ground = findGround(mc, target.getBlockPos());
@@ -71,7 +72,7 @@ public final class CrystalAura {
     }
 
     // swap to the item in the hotbar, place it on the support block's top face, swap back
-    private static boolean placeFromHotbar(MinecraftClient mc, PlayerEntity me, Item item, BlockPos support) {
+    private static boolean placeFromHotbar(MinecraftClient mc, ClientPlayerEntity me, Item item, BlockPos support) {
         int slot = -1;
         for (int i = 0; i < 9; i++) {
             if (me.getInventory().getStack(i).isOf(item)) {
