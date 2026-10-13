@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   build:
@@ -25,7 +26,21 @@ jobs:
           gradle-version: 8.14.3
 
       - name: Build
-        run: gradle build --no-daemon
+        id: build
+        run: gradle build --no-daemon 2>&1 | tee build.log
+
+      - name: Report failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "build failed on ${GITHUB_SHA}"
+            echo '```'
+            grep -v '^\s*$' build.log | tail -150
+            echo '```'
+          } > report.md
+          gh issue create -R "$GITHUB_REPOSITORY" -t "build failed ${GITHUB_SHA:0:7}" -F report.md || true
 
       - uses: actions/upload-artifact@v4
         with:
