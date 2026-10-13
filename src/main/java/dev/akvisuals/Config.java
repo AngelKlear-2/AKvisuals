@@ -22,6 +22,14 @@ public final class Config {
     public static int customW = 21;
     public static int customH = 9;
 
+    public static boolean fullBright = false;
+    public static boolean particles = true;
+
+    public static boolean customCrosshair = false;
+    public static int crosshairSize = 6;
+    public static int crosshairGap = 3;
+    public static int crosshairColor = 0xFFE5484D;
+
     private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("akvisuals.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -54,6 +62,12 @@ public final class Config {
         int stretchMode = Config.stretchMode;
         int customW = Config.customW;
         int customH = Config.customH;
+        boolean fullBright = Config.fullBright;
+        boolean particles = Config.particles;
+        boolean customCrosshair = Config.customCrosshair;
+        int crosshairSize = Config.crosshairSize;
+        int crosshairGap = Config.crosshairGap;
+        int crosshairColor = Config.crosshairColor;
 
         void apply() {
             Config.killAura = killAura;
@@ -67,6 +81,12 @@ public final class Config {
             Config.stretchMode = stretchMode;
             Config.customW = customW;
             Config.customH = customH;
+            Config.fullBright = fullBright;
+            Config.particles = particles;
+            Config.customCrosshair = customCrosshair;
+            Config.crosshairSize = crosshairSize;
+            Config.crosshairGap = crosshairGap;
+            Config.crosshairColor = crosshairColor;
         }
     }
 }

@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "AKvisuals",
   "description": "kill aura + visuals",
-  "authors": ["dolp"],
+  "authors": ["AngelKlear"],
   "license": "MIT",
   "environment": "client",
   "entrypoints": {
