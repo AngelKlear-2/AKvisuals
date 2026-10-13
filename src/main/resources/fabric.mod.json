@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "akvisuals",
+  "version": "${version}",
+  "name": "AKvisuals",
+  "description": "kill aura + visuals",
+  "authors": ["dolp"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["dev.akvisuals.AKvisuals"]
+  },
+  "mixins": ["akvisuals.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
