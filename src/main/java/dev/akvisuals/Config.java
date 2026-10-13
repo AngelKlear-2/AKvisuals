@@ -30,6 +30,14 @@ public final class Config {
     public static int crosshairGap = 3;
     public static int crosshairColor = 0xFFE5484D;
 
+    // kill aura: which held weapons it attacks with, smooth turn speed (deg/tick), crystal combo
+    public static boolean auraSword = true;
+    public static boolean auraAxe = true;
+    public static boolean auraMace = true;
+    public static boolean auraSpear = true;
+    public static float auraSpeed = 25f;
+    public static boolean crystalAura = false;
+
     private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("akvisuals.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -68,6 +76,12 @@ public final class Config {
         int crosshairSize = Config.crosshairSize;
         int crosshairGap = Config.crosshairGap;
         int crosshairColor = Config.crosshairColor;
+        boolean auraSword = Config.auraSword;
+        boolean auraAxe = Config.auraAxe;
+        boolean auraMace = Config.auraMace;
+        boolean auraSpear = Config.auraSpear;
+        float auraSpeed = Config.auraSpeed;
+        boolean crystalAura = Config.crystalAura;
 
         void apply() {
             Config.killAura = killAura;
@@ -87,6 +101,12 @@ public final class Config {
             Config.crosshairSize = crosshairSize;
             Config.crosshairGap = crosshairGap;
             Config.crosshairColor = crosshairColor;
+            Config.auraSword = auraSword;
+            Config.auraAxe = auraAxe;
+            Config.auraMace = auraMace;
+            Config.auraSpear = auraSpear;
+            Config.auraSpeed = auraSpeed;
+            Config.crystalAura = crystalAura;
         }
     }
 }

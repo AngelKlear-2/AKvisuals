@@ -64,6 +64,13 @@ public final class AKMenuScreen extends Screen {
         addToggle(l, Tab.COMBAT, "akvisuals.rotate", () -> Config.auraRotate, () -> Config.auraRotate = !Config.auraRotate);
         addToggle(l, Tab.COMBAT, "akvisuals.players", () -> Config.auraPlayers, () -> Config.auraPlayers = !Config.auraPlayers);
         addToggle(l, Tab.COMBAT, "akvisuals.mobs", () -> Config.auraMobs, () -> Config.auraMobs = !Config.auraMobs);
+        addToggle(l, Tab.COMBAT, "akvisuals.weapon.sword", () -> Config.auraSword, () -> Config.auraSword = !Config.auraSword);
+        addToggle(l, Tab.COMBAT, "akvisuals.weapon.axe", () -> Config.auraAxe, () -> Config.auraAxe = !Config.auraAxe);
+        addToggle(l, Tab.COMBAT, "akvisuals.weapon.mace", () -> Config.auraMace, () -> Config.auraMace = !Config.auraMace);
+        addToggle(l, Tab.COMBAT, "akvisuals.weapon.spear", () -> Config.auraSpear, () -> Config.auraSpear = !Config.auraSpear);
+        addValue(l, Tab.COMBAT, "akvisuals.speed", () -> String.format(Locale.ROOT, "%.0f", Config.auraSpeed),
+                () -> Config.auraSpeed = Config.auraSpeed >= 50 ? 10 : Config.auraSpeed + 5);
+        addToggle(l, Tab.COMBAT, "akvisuals.crystal", () -> Config.crystalAura, () -> Config.crystalAura = !Config.crystalAura);
 
         // visuals
         addToggle(l, Tab.VISUALS, "akvisuals.chinahat", () -> Config.chinaHat, () -> Config.chinaHat = !Config.chinaHat);
