@@ -67,7 +67,7 @@ public final class ChinaHat {
         dx /= len;
         dy /= len;
         dz /= len;
-        vc.vertex(m, ax, ay, az).color(col).normal(e, dx, dy, dz);
-        vc.vertex(m, bx, by, bz).color(col).normal(e, dx, dy, dz);
+        vc.vertex(m, ax, ay, az).color(col).lineWidth(1.0f).normal(e, dx, dy, dz);
+        vc.vertex(m, bx, by, bz).color(col).lineWidth(1.0f).normal(e, dx, dy, dz);
     }
 }
