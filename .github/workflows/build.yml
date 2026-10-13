@@ -27,7 +27,10 @@ jobs:
 
       - name: Build
         id: build
-        run: gradle build --no-daemon 2>&1 | tee build.log
+        shell: bash
+        run: |
+          set -o pipefail
+          gradle build --no-daemon 2>&1 | tee build.log
 
       - name: Report failure
         if: failure()
@@ -40,7 +43,7 @@ jobs:
             grep -v '^\s*$' build.log | tail -150
             echo '```'
           } > report.md
-          gh issue create -R "$GITHUB_REPOSITORY" -t "build failed ${GITHUB_SHA:0:7}" -F report.md || true
+          gh api -X POST "repos/$GITHUB_REPOSITORY/issues" -f title="build failed ${GITHUB_SHA:0:7}" -F body=@report.md || true
 
       - uses: actions/upload-artifact@v4
         with:
