@@ -3,7 +3,7 @@ package dev.akvisuals;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.Perspective;
-import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,8 +22,8 @@ public final class ChinaHat {
 
         float td = mc.getRenderTickCounter().getTickProgress(true); // FILL: verify tick counter accessor
         float t = mc.world.getTime() + td;
-        Vec3d cam = ctx.camera().getPos();
-        VertexConsumer vc = ctx.consumers().getBuffer(RenderLayer.getLines());
+        Vec3d cam = mc.gameRenderer.getCamera().getPos();
+        VertexConsumer vc = ctx.consumers().getBuffer(RenderLayers.lines());
 
         float spin = Config.hatAnimate ? t * 0.08f * Config.hatSpeed : 0f;
         float bob = Config.hatAnimate ? (float) Math.sin(t * 0.1f * Config.hatSpeed) * 0.04f : 0f;
