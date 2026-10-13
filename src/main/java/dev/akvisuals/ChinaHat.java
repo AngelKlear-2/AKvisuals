@@ -22,7 +22,7 @@ public final class ChinaHat {
 
         float td = mc.getRenderTickCounter().getTickProgress(true); // FILL: verify tick counter accessor
         float t = mc.world.getTime() + td;
-        Vec3d cam = mc.gameRenderer.getCamera().getPos();
+        Vec3d cam = mc.gameRenderer.getCamera().getCameraPos();
         VertexConsumer vc = ctx.consumers().getBuffer(RenderLayers.lines());
 
         float spin = Config.hatAnimate ? t * 0.08f * Config.hatSpeed : 0f;
