@@ -18,15 +18,21 @@ Client-side Fabric mod for Minecraft 1.21.11. Kill aura, a spinning "china hat" 
 
 ## Build
 
-```
+```bash
 ./gradlew build
 ```
 
-The jar is written to `build/libs/AKvisuals-1.0.0.jar`. Put it in `mods/` alongside Fabric API.
+If `gradlew` is missing the wrapper jar, generate it first (any Gradle 8.14+/9.x):
+
+```bash
+gradle wrapper --gradle-version 9.2.1
+```
+
+The jar is written to `build/libs/AKvisuals-0.1-SNAPSHOT.jar`. Put it in `mods/` alongside Fabric API.
 
 ## Status
 
-Not yet compiled. The Yarn, Loader, and Fabric API versions in `gradle.properties` are placeholders, and the mixin target `getBasicProjectionMatrix` is unverified. Expect to fix these on the first build. Look for `// FILL:` comments.
+Build setup updated (Loom 1.14.10 + Gradle 9.2.1). Some targets still marked with `// FILL:` comments — verify mixin `getBasicProjectionMatrix` and tick-counter accessor on first run.
 
 ## Warning
 
