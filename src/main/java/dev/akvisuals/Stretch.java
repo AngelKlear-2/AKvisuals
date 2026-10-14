@@ -7,6 +7,7 @@ public final class Stretch {
             case 1 -> 4f / 3f;
             case 2 -> 16f / 9f;
             case 3 -> (float) Config.customW / Math.max(1, Config.customH);
+            case 4 -> 21f / 9f;
             default -> -1f;
         };
         if (target <= 0) return 1f;

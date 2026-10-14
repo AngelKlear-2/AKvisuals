@@ -33,5 +33,11 @@
   "akvisuals.crosshair.gap": "Зазор прицела",
   "akvisuals.crosshair.color": "Цвет прицела",
   "akvisuals.save": "Сохранить конфиг",
-  "akvisuals.menu": "Меню"
+  "akvisuals.menu": "Меню",
+  "akvisuals.customratio": "Свое соотношение W:H",
+  "akvisuals.reset": "Сбросить вид меню",
+  "akvisuals.color.red": "Красный",
+  "akvisuals.color.white": "Белый",
+  "akvisuals.color.cyan": "Голубой",
+  "akvisuals.color.green": "Зелёный"
 }

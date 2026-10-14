@@ -38,6 +38,9 @@ public final class Config {
     public static float auraSpeed = 25f;
     public static boolean crystalAura = false;
 
+    // menu position and size; x/y = -1 means centred
+    public static int menuX = -1, menuY = -1, menuW = 340, menuH = 420;
+
     private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("akvisuals.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -82,6 +85,10 @@ public final class Config {
         boolean auraSpear = Config.auraSpear;
         float auraSpeed = Config.auraSpeed;
         boolean crystalAura = Config.crystalAura;
+        int menuX = Config.menuX;
+        int menuY = Config.menuY;
+        int menuW = Config.menuW;
+        int menuH = Config.menuH;
 
         void apply() {
             Config.killAura = killAura;
@@ -107,6 +114,10 @@ public final class Config {
             Config.auraSpear = auraSpear;
             Config.auraSpeed = auraSpeed;
             Config.crystalAura = crystalAura;
+            Config.menuX = menuX;
+            Config.menuY = menuY;
+            Config.menuW = menuW;
+            Config.menuH = menuH;
         }
     }
 }

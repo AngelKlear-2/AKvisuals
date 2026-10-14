@@ -33,5 +33,11 @@
   "akvisuals.crosshair.gap": "Crosshair Gap",
   "akvisuals.crosshair.color": "Crosshair Color",
   "akvisuals.save": "Save Config",
-  "akvisuals.menu": "Menu"
+  "akvisuals.menu": "Menu",
+  "akvisuals.customratio": "Custom ratio W:H",
+  "akvisuals.reset": "Reset menu layout",
+  "akvisuals.color.red": "Red",
+  "akvisuals.color.white": "White",
+  "akvisuals.color.cyan": "Cyan",
+  "akvisuals.color.green": "Green"
 }
