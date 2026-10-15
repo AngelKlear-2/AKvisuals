@@ -39,5 +39,10 @@
   "akvisuals.color.red": "Red",
   "akvisuals.color.white": "White",
   "akvisuals.color.cyan": "Cyan",
-  "akvisuals.color.green": "Green"
+  "akvisuals.color.green": "Green",
+  "akvisuals.tab.super": "Super",
+  "akvisuals.hud.effects": "Effects HUD",
+  "akvisuals.hud.cooldowns": "Cooldowns HUD",
+  "akvisuals.density": "Particle Density %",
+  "akvisuals.reset.widgets": "Reset HUD widgets"
 }

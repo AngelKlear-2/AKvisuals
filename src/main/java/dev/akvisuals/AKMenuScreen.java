@@ -1,10 +1,12 @@
 package dev.akvisuals;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.input.CharInput;
 import net.minecraft.client.input.KeyInput;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
@@ -38,15 +40,15 @@ public final class AKMenuScreen extends Screen {
     private static final int KNOB = 0xFFFFFFFF;
     private static final int PILL_OFF = 0x59FFFFFF;
 
-    private static final int MIN_W = 280, MIN_H = 220;
+    private static final int MIN_W = 300, MIN_H = 240;
     private static final int HEADER_H = 40, TABS_H = 30, PAD = 10;
-    private static final int ROW_H = 26, SLIDER_H = 36, GAP = 4, R = 12;
+    private static final int ROW_H = 26, CARD_H = 38, SLIDER_H = 36, GAP = 4, R = 12;
 
     private static final String[] ASPECT = {"OFF", "4:3", "16:9", "CUSTOM", "21:9"};
     private static final int[] CROSS_COLORS = {0xFFE5484D, 0xFFFFFFFF, 0xFF4DD6FF, 0xFF7CFF6B};
     private static final String[] CROSS_COLOR_KEYS = {"akvisuals.color.red", "akvisuals.color.white", "akvisuals.color.cyan", "akvisuals.color.green"};
 
-    private enum Tab { COMBAT, VISUALS, HUD, UTIL }
+    private enum Tab { VISUALS, HUD, UTIL, SUPER }
 
     private enum Kind { TOGGLE, SLIDER, CHOICE, TEXT, BUTTON }
 
@@ -91,6 +93,8 @@ public final class AKMenuScreen extends Screen {
     private Item dragSlider = null;
     private int dragX, dragW;
     private boolean moving = false, resizing = false;
+    private String dragWidget = null;
+    private int dragOffX, dragOffY;
     private int grabX, grabY;
     private int scroll = 0;
     private int contentHeight = 0;
@@ -105,19 +109,6 @@ public final class AKMenuScreen extends Screen {
     private static List<Item> buildItems() {
         List<Item> l = new ArrayList<>();
 
-        // combat
-        l.add(toggle(Tab.COMBAT, "akvisuals.killaura", () -> Config.killAura, () -> Config.killAura = !Config.killAura));
-        l.add(slider(Tab.COMBAT, "akvisuals.range", 1.5, 6, 0.5, 1, () -> Config.auraRange, v -> Config.auraRange = v));
-        l.add(slider(Tab.COMBAT, "akvisuals.speed", 5, 60, 5, 0, () -> Config.auraSpeed, v -> Config.auraSpeed = (float) v));
-        l.add(toggle(Tab.COMBAT, "akvisuals.rotate", () -> Config.auraRotate, () -> Config.auraRotate = !Config.auraRotate));
-        l.add(toggle(Tab.COMBAT, "akvisuals.players", () -> Config.auraPlayers, () -> Config.auraPlayers = !Config.auraPlayers));
-        l.add(toggle(Tab.COMBAT, "akvisuals.mobs", () -> Config.auraMobs, () -> Config.auraMobs = !Config.auraMobs));
-        l.add(toggle(Tab.COMBAT, "akvisuals.weapon.sword", () -> Config.auraSword, () -> Config.auraSword = !Config.auraSword));
-        l.add(toggle(Tab.COMBAT, "akvisuals.weapon.axe", () -> Config.auraAxe, () -> Config.auraAxe = !Config.auraAxe));
-        l.add(toggle(Tab.COMBAT, "akvisuals.weapon.mace", () -> Config.auraMace, () -> Config.auraMace = !Config.auraMace));
-        l.add(toggle(Tab.COMBAT, "akvisuals.weapon.spear", () -> Config.auraSpear, () -> Config.auraSpear = !Config.auraSpear));
-        l.add(toggle(Tab.COMBAT, "akvisuals.crystal", () -> Config.crystalAura, () -> Config.crystalAura = !Config.crystalAura));
-
         // visuals
         l.add(toggle(Tab.VISUALS, "akvisuals.chinahat", () -> Config.chinaHat, () -> Config.chinaHat = !Config.chinaHat));
         l.add(toggle(Tab.VISUALS, "akvisuals.hatanimate", () -> Config.hatAnimate, () -> Config.hatAnimate = !Config.hatAnimate));
@@ -129,6 +120,7 @@ public final class AKMenuScreen extends Screen {
         l.add(ratio);
         l.add(toggle(Tab.VISUALS, "akvisuals.fullbright", () -> Config.fullBright, () -> Config.fullBright = !Config.fullBright));
         l.add(toggle(Tab.VISUALS, "akvisuals.particles", () -> Config.particles, () -> Config.particles = !Config.particles));
+        l.add(slider(Tab.VISUALS, "akvisuals.density", 0, 100, 5, 0, () -> Config.particleDensity, v -> Config.particleDensity = (int) v));
 
         // hud
         l.add(toggle(Tab.HUD, "akvisuals.crosshair", () -> Config.customCrosshair, () -> Config.customCrosshair = !Config.customCrosshair));
@@ -138,6 +130,8 @@ public final class AKMenuScreen extends Screen {
         for (int i = 0; i < colorNames.length; i++) colorNames[i] = t(CROSS_COLOR_KEYS[i]);
         l.add(choice(Tab.HUD, "akvisuals.crosshair.color", colorNames,
                 () -> indexOf(CROSS_COLORS, Config.crosshairColor), i -> Config.crosshairColor = CROSS_COLORS[i]));
+        l.add(toggle(Tab.HUD, "akvisuals.hud.effects", () -> Config.hudEffects, () -> Config.hudEffects = !Config.hudEffects));
+        l.add(toggle(Tab.HUD, "akvisuals.hud.cooldowns", () -> Config.hudCooldowns, () -> Config.hudCooldowns = !Config.hudCooldowns));
 
         // utilities
         l.add(button(Tab.UTIL, "akvisuals.save", Config::save));
@@ -147,6 +141,25 @@ public final class AKMenuScreen extends Screen {
             Config.menuW = 340;
             Config.menuH = 420;
         }));
+        l.add(button(Tab.UTIL, "akvisuals.reset.widgets", () -> {
+            Config.hudEffX = -1;
+            Config.hudEffY = -1;
+            Config.hudCdX = -1;
+            Config.hudCdY = -1;
+        }));
+
+        // super: hidden, unlocked with ctrl + lshift + 0 while holding rshift in the menu
+        l.add(toggle(Tab.SUPER, "akvisuals.killaura", () -> Config.killAura, () -> Config.killAura = !Config.killAura));
+        l.add(slider(Tab.SUPER, "akvisuals.range", 1.5, 6, 0.5, 1, () -> Config.auraRange, v -> Config.auraRange = v));
+        l.add(slider(Tab.SUPER, "akvisuals.speed", 5, 60, 5, 0, () -> Config.auraSpeed, v -> Config.auraSpeed = (float) v));
+        l.add(toggle(Tab.SUPER, "akvisuals.rotate", () -> Config.auraRotate, () -> Config.auraRotate = !Config.auraRotate));
+        l.add(toggle(Tab.SUPER, "akvisuals.players", () -> Config.auraPlayers, () -> Config.auraPlayers = !Config.auraPlayers));
+        l.add(toggle(Tab.SUPER, "akvisuals.mobs", () -> Config.auraMobs, () -> Config.auraMobs = !Config.auraMobs));
+        l.add(toggle(Tab.SUPER, "akvisuals.weapon.sword", () -> Config.auraSword, () -> Config.auraSword = !Config.auraSword));
+        l.add(toggle(Tab.SUPER, "akvisuals.weapon.axe", () -> Config.auraAxe, () -> Config.auraAxe = !Config.auraAxe));
+        l.add(toggle(Tab.SUPER, "akvisuals.weapon.mace", () -> Config.auraMace, () -> Config.auraMace = !Config.auraMace));
+        l.add(toggle(Tab.SUPER, "akvisuals.weapon.spear", () -> Config.auraSpear, () -> Config.auraSpear = !Config.auraSpear));
+        l.add(toggle(Tab.SUPER, "akvisuals.crystal", () -> Config.crystalAura, () -> Config.crystalAura = !Config.crystalAura));
 
         return l;
     }
@@ -210,12 +223,17 @@ public final class AKMenuScreen extends Screen {
         return 0;
     }
 
+    private static int indexOf(Tab[] arr, Tab v) {
+        for (int i = 0; i < arr.length; i++) if (arr[i] == v) return i;
+        return 0;
+    }
+
     private static String tabKey(Tab t) {
         return switch (t) {
-            case COMBAT -> "akvisuals.tab.combat";
             case VISUALS -> "akvisuals.tab.visuals";
             case HUD -> "akvisuals.tab.hud";
             case UTIL -> "akvisuals.tab.utilities";
+            case SUPER -> "akvisuals.tab.super";
         };
     }
 
@@ -223,11 +241,27 @@ public final class AKMenuScreen extends Screen {
         return Text.translatable(key).getString();
     }
 
+    private static boolean superHeld() {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        return InputUtil.isKeyPressed(mc.getWindow(), GLFW.GLFW_KEY_RIGHT_SHIFT)
+                && InputUtil.isKeyPressed(mc.getWindow(), GLFW.GLFW_KEY_LEFT_CONTROL)
+                && InputUtil.isKeyPressed(mc.getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT);
+    }
+
+    private List<Tab> visibleTabs() {
+        List<Tab> out = new ArrayList<>();
+        for (Tab tb : Tab.values()) {
+            if (tb != Tab.SUPER || Config.superUnlocked) out.add(tb);
+        }
+        return out;
+    }
+
     private List<Item> visibleItems() {
         String q = search.trim().toLowerCase(Locale.ROOT);
         List<Item> out = new ArrayList<>();
         for (Item it : items) {
             if (it.show != null && !it.show.getAsBoolean()) continue;
+            if (it.tab == Tab.SUPER && !Config.superUnlocked) continue;
             if (q.isEmpty()) {
                 if (it.tab == tab) out.add(it);
             } else if (t(it.label).toLowerCase(Locale.ROOT).contains(q)) {
@@ -244,6 +278,7 @@ public final class AKMenuScreen extends Screen {
         ph = Math.max(MIN_H, Math.min(Config.menuH, height));
         px = Config.menuX < 0 ? (width - pw) / 2 : Math.max(0, Math.min(Config.menuX, width - pw));
         py = Config.menuY < 0 ? Math.max(4, (height - ph) / 2) : Math.max(0, Math.min(Config.menuY, height - ph));
+        if (tab == Tab.SUPER && !Config.superUnlocked) tab = Tab.VISUALS;
     }
 
     private int viewTop() {
@@ -263,7 +298,19 @@ public final class AKMenuScreen extends Screen {
         int top = viewTop() + PAD;
         int y = top - offset;
         int rx = px + PAD, rw = pw - PAD * 2;
-        for (Item it : visibleItems()) {
+        int cw = (rw - GAP) / 2;
+        List<Item> vis = visibleItems();
+        int i = 0;
+        while (i < vis.size()) {
+            Item it = vis.get(i);
+            if (it.kind == Kind.TOGGLE) {
+                boolean pair = i + 1 < vis.size() && vis.get(i + 1).kind == Kind.TOGGLE;
+                out.add(new Hit(it, -1, rx, y, cw, CARD_H));
+                if (pair) out.add(new Hit(vis.get(i + 1), -1, rx + cw + GAP, y, cw, CARD_H));
+                y += CARD_H + GAP;
+                i += pair ? 2 : 1;
+                continue;
+            }
             int h = it.kind == Kind.SLIDER ? SLIDER_H : ROW_H;
             out.add(new Hit(it, -1, rx, y, rw, h));
             y += h + GAP;
@@ -274,6 +321,7 @@ public final class AKMenuScreen extends Screen {
                 }
                 y += GAP;
             }
+            i++;
         }
         return y + offset - top;
     }
@@ -313,7 +361,7 @@ public final class AKMenuScreen extends Screen {
         rr(c, px + 14, py + 15, 8, 8, 4, ACCENT);
         c.drawTextWithShadow(textRenderer, "AKvisuals", px + 28, py + 14, TEXT);
         int vx = px + 28 + textRenderer.getWidth("AKvisuals") + 6;
-        c.drawTextWithShadow(textRenderer, "v0.2.0", vx, py + 14, MUTED);
+        c.drawTextWithShadow(textRenderer, "v1.21.11", vx, py + 14, MUTED);
 
         int sx = px + pw - 136, sy = py + 11;
         rr(c, sx, sy, 120, 18, 9, searchFocus ? ACCENT_DIM : FIELD);
@@ -321,10 +369,11 @@ public final class AKMenuScreen extends Screen {
         c.drawTextWithShadow(textRenderer, sText, sx + 9, sy + 5, search.isEmpty() && !searchFocus ? MUTED : TEXT);
 
         // tabs with animated underline
-        int tw = (pw - PAD * 2) / 4;
+        List<Tab> tabs = visibleTabs();
+        int tw = (pw - PAD * 2) / tabs.size();
         int ty = py + HEADER_H;
-        for (int i = 0; i < Tab.values().length; i++) {
-            Tab tb = Tab.values()[i];
+        for (int i = 0; i < tabs.size(); i++) {
+            Tab tb = tabs.get(i);
             int tx = px + PAD + i * tw;
             boolean sel = tb == tab;
             boolean hover = inside(mouseX, mouseY, tx, ty, tw, TABS_H);
@@ -332,7 +381,7 @@ public final class AKMenuScreen extends Screen {
             String label = t(tabKey(tb));
             c.drawTextWithShadow(textRenderer, label, tx + (tw - textRenderer.getWidth(label)) / 2, ty + 11, sel ? TEXT : MUTED);
         }
-        float target = px + PAD + indexOf(Tab.values(), tab) * tw;
+        float target = px + PAD + tabs.indexOf(tab) * tw;
         if (lineX < 0) lineX = target;
         lineX += (target - lineX) * 0.3f;
         rr(c, Math.round(lineX) + 14, ty + TABS_H - 3, tw - 28, 2, 1, ACCENT);
@@ -361,6 +410,9 @@ public final class AKMenuScreen extends Screen {
             rr(c, px + pw - 6 - i * 4, py + ph - 6 - i * 4, 2, 2, 1, MUTED);
         }
 
+        // hud widgets, drawn as a live preview while the menu is open (draggable)
+        HudWidgets.render(c, true);
+
         // hot keys plate, bottom-right of the screen
         int hx = width - 150, hy = height - 96, hw = 136, hh = 72;
         rrGrad(c, hx, hy, hw, hh, R, ACCENT_DIM, ACCENT_DIM);
@@ -379,7 +431,15 @@ public final class AKMenuScreen extends Screen {
         if (h.option >= 0) {
             boolean sel = it.index.getAsInt() == h.option;
             rr(c, h.x, h.y, h.w, h.h, 7, sel ? ACCENT_DIM : (hover ? ROW_HOVER : ROW));
-            c.drawTextWithShadow(textRenderer, optionLabel(it, h.option), h.x + 10, h.y + 9, sel ? TEXT : MUTED);
+            c.drawTextWithShadow(textRenderer, it.options[h.option], h.x + 10, h.y + 9, sel ? TEXT : MUTED);
+            return;
+        }
+
+        if (it.kind == Kind.TOGGLE) {
+            boolean on = it.on.getAsBoolean();
+            rr(c, h.x, h.y, h.w, h.h, 10, on ? ACCENT_DIM : (hover ? ROW_HOVER : ROW));
+            c.drawTextWithShadow(textRenderer, t(it.label), h.x + 12, h.y + 8, on ? TEXT : MUTED);
+            drawPill(c, it, h.x + h.w - 38, h.y + h.h - 18);
             return;
         }
 
@@ -388,13 +448,9 @@ public final class AKMenuScreen extends Screen {
         String label = t(it.label);
 
         switch (it.kind) {
-            case TOGGLE -> {
-                c.drawTextWithShadow(textRenderer, label, h.x + 10, cy, TEXT);
-                drawPill(c, it, h.x + h.w - 36, h.y + (ROW_H - 12) / 2);
-            }
             case CHOICE -> {
                 c.drawTextWithShadow(textRenderer, label, h.x + 10, cy, TEXT);
-                String v = optionLabel(it, it.index.getAsInt());
+                String v = it.options[it.index.getAsInt()];
                 String sign = it == openChoice ? "-" : "+";
                 int vw = textRenderer.getWidth(v);
                 c.drawTextWithShadow(textRenderer, sign, h.x + h.w - 12, cy, MUTED);
@@ -425,12 +481,9 @@ public final class AKMenuScreen extends Screen {
                 rr(c, trackX, trackY, Math.max(4, fill), 4, 2, ACCENT);
                 rr(c, trackX + fill - 5, trackY - 3, 10, 10, 5, KNOB);
             }
+            default -> {
+            }
         }
-    }
-
-    private static String optionLabel(Item it, int i) {
-        if (it.label.equals("akvisuals.crosshair.color")) return it.options[i];
-        return it.options[i];
     }
 
     private void drawPill(DrawContext c, Item it, int x, int y) {
@@ -452,6 +505,26 @@ public final class AKMenuScreen extends Screen {
         layoutRows();
         double mx = click.x(), my = click.y();
 
+        // hud widgets first, they can sit outside the panel
+        for (String key : new String[]{HudWidgets.FX, HudWidgets.CD}) {
+            boolean enabled = HudWidgets.FX.equals(key) ? Config.hudEffects : Config.hudCooldowns;
+            if (!enabled) continue;
+            int[] r = HudWidgets.rect(key);
+            if (inside(mx, my, r[0], r[1], r[2], r[3])) {
+                dragWidget = key;
+                dragOffX = (int) (mx - r[0]);
+                dragOffY = (int) (my - r[1]);
+                if (HudWidgets.FX.equals(key)) {
+                    Config.hudEffX = r[0];
+                    Config.hudEffY = r[1];
+                } else {
+                    Config.hudCdX = r[0];
+                    Config.hudCdY = r[1];
+                }
+                return true;
+            }
+        }
+
         if (inside(mx, my, px + pw - 14, py + ph - 14, 14, 14)) {
             resizing = true;
             return true;
@@ -470,11 +543,12 @@ public final class AKMenuScreen extends Screen {
         commitText();
         searchFocus = false;
 
-        int tw = (pw - PAD * 2) / 4;
-        for (int i = 0; i < Tab.values().length; i++) {
+        List<Tab> tabs = visibleTabs();
+        int tw = (pw - PAD * 2) / tabs.size();
+        for (int i = 0; i < tabs.size(); i++) {
             int tx = px + PAD + i * tw;
             if (inside(mx, my, tx, py + HEADER_H, tw, TABS_H)) {
-                tab = Tab.values()[i];
+                tab = tabs.get(i);
                 scroll = 0;
                 openChoice = null;
                 return true;
@@ -511,6 +585,8 @@ public final class AKMenuScreen extends Screen {
                     dragW = h.w;
                     setSliderFromX(it, h.x, h.w, mx);
                 }
+                default -> {
+                }
             }
             return true;
         }
@@ -520,6 +596,18 @@ public final class AKMenuScreen extends Screen {
     @Override
     public boolean mouseDragged(Click click, double offsetX, double offsetY) {
         double mx = click.x(), my = click.y();
+        if (dragWidget != null) {
+            int nx = (int) Math.max(0, Math.min(mx - dragOffX, width - HudWidgets.W));
+            int ny = (int) Math.max(0, Math.min(my - dragOffY, height - 20));
+            if (HudWidgets.FX.equals(dragWidget)) {
+                Config.hudEffX = nx;
+                Config.hudEffY = ny;
+            } else {
+                Config.hudCdX = nx;
+                Config.hudCdY = ny;
+            }
+            return true;
+        }
         if (moving) {
             Config.menuX = (int) Math.max(0, Math.min(mx - grabX, width - pw));
             Config.menuY = (int) Math.max(0, Math.min(my - grabY, height - ph));
@@ -539,10 +627,11 @@ public final class AKMenuScreen extends Screen {
 
     @Override
     public boolean mouseReleased(Click click) {
-        if (moving || resizing || dragSlider != null) {
+        if (moving || resizing || dragSlider != null || dragWidget != null) {
             moving = false;
             resizing = false;
             dragSlider = null;
+            dragWidget = null;
             Config.save();
             return true;
         }
@@ -570,6 +659,14 @@ public final class AKMenuScreen extends Screen {
     @Override
     public boolean keyPressed(KeyInput input) {
         int k = input.key();
+
+        // hidden super tab: ctrl + lshift + 0 while holding rshift
+        if (k == GLFW.GLFW_KEY_0 && superHeld()) {
+            Config.superUnlocked = !Config.superUnlocked;
+            if (!Config.superUnlocked && tab == Tab.SUPER) tab = Tab.VISUALS;
+            return true;
+        }
+
         if (focusItem != null) {
             if (k == GLFW.GLFW_KEY_ESCAPE) {
                 focusItem = null;
@@ -645,11 +742,6 @@ public final class AKMenuScreen extends Screen {
             int col = top == bottom ? top : mix(top, bottom, dy / (float) h);
             c.fill(x + inset, y + dy, x + w - inset, y + dy + 1, col);
         }
-    }
-
-    private static int indexOf(Tab[] arr, Tab v) {
-        for (int i = 0; i < arr.length; i++) if (arr[i] == v) return i;
-        return 0;
     }
 
     private static int mix(int a, int b, float t) {

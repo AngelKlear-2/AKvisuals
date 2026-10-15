@@ -44,5 +44,8 @@ public class AKvisuals implements ClientModInitializer {
         HudElementRegistry.attachElementAfter(VanillaHudElements.CROSSHAIR,
                 Identifier.of("akvisuals", "crosshair"),
                 (context, tickCounter) -> Crosshair.render(context));
+        HudElementRegistry.attachElementAfter(VanillaHudElements.CROSSHAIR,
+                Identifier.of("akvisuals", "widgets"),
+                (context, tickCounter) -> HudWidgets.render(context, false));
     }
 }

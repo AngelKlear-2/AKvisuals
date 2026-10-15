@@ -41,6 +41,17 @@ public final class Config {
     // menu position and size; x/y = -1 means centred
     public static int menuX = -1, menuY = -1, menuW = 340, menuH = 420;
 
+    // super tab is unlocked in-session only (ctrl + lshift + 0 while holding rshift in the menu); never saved
+    public static boolean superUnlocked = false;
+
+    // hud widgets: effects and cooldowns, drawn with the menu closed; x/y -1 = default corner
+    public static boolean hudEffects = true;
+    public static boolean hudCooldowns = true;
+    public static int hudEffX = -1, hudEffY = -1, hudCdX = -1, hudCdY = -1;
+
+    // optimisation: share of vanilla particles that still spawn, 0-100
+    public static int particleDensity = 100;
+
     private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("akvisuals.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -89,6 +100,13 @@ public final class Config {
         int menuY = Config.menuY;
         int menuW = Config.menuW;
         int menuH = Config.menuH;
+        boolean hudEffects = Config.hudEffects;
+        boolean hudCooldowns = Config.hudCooldowns;
+        int hudEffX = Config.hudEffX;
+        int hudEffY = Config.hudEffY;
+        int hudCdX = Config.hudCdX;
+        int hudCdY = Config.hudCdY;
+        int particleDensity = Config.particleDensity;
 
         void apply() {
             Config.killAura = killAura;
@@ -118,6 +136,13 @@ public final class Config {
             Config.menuY = menuY;
             Config.menuW = menuW;
             Config.menuH = menuH;
+            Config.hudEffects = hudEffects;
+            Config.hudCooldowns = hudCooldowns;
+            Config.hudEffX = hudEffX;
+            Config.hudEffY = hudEffY;
+            Config.hudCdX = hudCdX;
+            Config.hudCdY = hudCdY;
+            Config.particleDensity = particleDensity;
         }
     }
 }

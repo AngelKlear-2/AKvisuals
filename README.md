@@ -28,7 +28,7 @@ If `gradlew` is missing the wrapper jar, generate it first (any Gradle 8.14+/9.x
 gradle wrapper --gradle-version 9.2.1
 ```
 
-The jar is written to `build/libs/AKvisuals-0.1-SNAPSHOT.jar`. Put it in `mods/` alongside Fabric API.
+The jar is written to `build/libs/AKvisuals-1.21.11.jar`. Put it in `mods/` alongside Fabric API.
 
 ## Status
 
